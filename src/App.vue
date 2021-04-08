@@ -3,8 +3,12 @@
 
 <template>
   <div class="container">
-    <Header title="Task Tracker" :showForm='showForm' @toggle-form="toggleAddTaskForm" />
-    <AddTaskForm v-show="showForm" @new-task="addNewTask"/>
+    <Header
+      title="Task Tracker"
+      :showForm="showForm"
+      @toggle-form="toggleAddTaskForm"
+    />
+    <AddTaskForm v-show="showForm" @new-task="addNewTask" />
     <Tasks
       :tasks="tasks"
       @delete-task="this.deleteTask"
@@ -14,9 +18,9 @@
 </template>
 
 <script>
-import 'bootstrap/dist/css/bootstrap.min.css'
-import 'jquery/src/jquery.js'
-import 'bootstrap/dist/js/bootstrap.min.js'
+import "bootstrap/dist/css/bootstrap.min.css";
+import "jquery/src/jquery.js";
+import "bootstrap/dist/js/bootstrap.min.js";
 
 import Header from "./components/Header";
 import Tasks from "./components/Tasks";
@@ -28,60 +32,58 @@ export default {
   components: {
     Header,
     Tasks,
-    AddTaskForm
+    AddTaskForm,
   },
   data() {
     return {
       tasks: [],
-      showForm: false
+      showForm: false,
     };
   },
   methods: {
-    deleteTask(id) {
-      if (confirm("Delete task?")) {
-        this.tasks = this.tasks.filter((task) => task.id !== id);
-      }
-    },
     toggleReminder(id) {
-      this.tasks = this.tasks.map((task) => 
-        task.id === id ? {...task, reminder: !task.reminder } : task
+      this.tasks = this.tasks.map((task) =>
+        task.id === id ? { ...task, reminder: !task.reminder } : task
       );
     },
     toggleAddTaskForm() {
       this.showForm = !this.showForm;
     },
-    addNewTask(task) {
-      this.tasks = [...this.tasks, task];
-      this.showForm = false;
-    },
     async fetchTasks() {
-      const res = await fetch('http://localhost:5000/tasks');
+      const sortQueryString = "?_sort=text";
+      const res = await fetch(`api/tasks${sortQueryString}`);
       const data = await res.json();
       return data;
-    }
+    },
+    async fetchTask(id) {
+      const res = await fetch(`api/tasks/${id}`);
+      const data = await res.json();
+      return data;
+    },
+    async addNewTask(task) {
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify(task),
+      };
+      const res = await fetch("api/tasks", options);
+      const data = await res.json();
+      this.tasks = [...this.tasks, await data];
+      this.showForm = false;
+    },
+    async deleteTask(id) {
+      if (confirm("Delete task?")) {
+        const res = await fetch(`api/tasks/${id}`, { method: "DELETE" });
+        res.status === 200
+          ? (this.tasks = this.tasks.filter((task) => task.id !== id))
+          : alert("Error deleting task");
+      }
+    },
   },
   async created() {
     this.tasks = await this.fetchTasks();
-    // [
-    //   {
-    //     id: 1,
-    //     text: "Get Shoulder Fixed",
-    //     day: "March 16, 2021",
-    //     reminder: true,
-    //   },
-    //   {
-    //     id: 2,
-    //     text: "Get Something Done",
-    //     day: "March 16, 2021",
-    //     reminder: true,
-    //   },
-    //   {
-    //     id: 3,
-    //     text: "Get Something Fixed",
-    //     day: "March 16, 2021",
-    //     reminder: false,
-    //   },
-    // ];
   },
 };
 </script>
@@ -128,5 +130,4 @@ body {
   display: block;
   width: 100%;
 }
-
 </style>
