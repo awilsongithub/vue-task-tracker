@@ -15,7 +15,7 @@ const data = [
     id: 3,
     text: 'Get Something Fixed',
     day: "March 16, 2021",
-    reminder: true
+    reminder: false
   },
 
 ];

@@ -1,13 +1,13 @@
 <template>
   <header>
     <h1>{{ title }}</h1>
-    <Button text="Add Task" />
+    <Button :text="showForm ? 'Close' : 'Add Task'" @btn-click="$emit('toggle-form')" />
   </header>
 </template>
 
 <script>
-
-import Button from "./Button"
+import Button from "./Button";
+import $ from "jquery";
 
 export default {
   name: "Header",
@@ -16,10 +16,19 @@ export default {
       type: String,
       default: "John Doe",
     },
+    showForm: false,
   },
   components: {
-    Button
-  }
+    Button,
+  },
+  methods: {
+    getButtonText() {
+      return this.showForm ? "Close Form" : "Add Task";
+    },
+  },
+  mounted() {
+    $("button").addClass("btn-dark w-125px");
+  },
 };
 </script>
 
@@ -29,5 +38,8 @@ header {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+}
+.w-125px {
+  width: 125px;
 }
 </style>
